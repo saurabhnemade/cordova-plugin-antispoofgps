@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+        id="cordova-plugin-antispoofgps"
+        version="0.0.1">
+
+  <name>AntispoofGps</name>
+  <description>Detect GPS Spoofing on device.</description>
+  <author>Saurabh Nemade</author>
+  <license>MIT</license>
+  <keywords>Antispoof, gps, protection, antifraud</keywords>
+  <repo>https://github.com/saurabhnemade/cordova-plugin-antispoofgps.git</repo>
+  <issue>https://github.com/saurabhnemade/cordova-plugin-antispoofgps/issues</issue>
+
+  <engines>
+    <engine name="cordova" version=">=3.4.0"/>
+  </engines>
+
+  <asset src="www/cordovaAntispoofGps.js" target="js/cordovaAntispoofGps.js"/>
+
+  <js-module src="www/cordovaAntispoofGps.js" name="cordovaAntispoofGps">
+    <clobbers target="cordovaAntispoofGps" />
+  </js-module>
+
+  <platform name="android">
+    <config-file target="AndroidManifest.xml" parent="/manifest">
+      <uses-permission android:name="android.permission.INTERNET"/>
+    </config-file>
+
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="AntispoofGps">
+        <param name="android-package" value="com.saurabhnemade.cordova.plugin.AntispoofGps"/>
+      </feature>
+    </config-file>
+
+    <source-file src="src/android/AntispoofGps.java" target-dir="src/com/saurabhnemade/cordova/plugin/AntispoofGps.java"/>
+  </platform>
+
+</plugin>
