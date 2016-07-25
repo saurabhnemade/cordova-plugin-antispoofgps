@@ -58,8 +58,35 @@ public class AntispoofGps extends CordovaPlugin {
             return true;
           }
         }
+        else if(action.equals("checkAllowMockLocationEnabled")){
+          if(AntispoofGps.isMockSettingsON(AntispoofGps.appContext) == true){
+            result.put("ALLOW_MOCK_LOCATION", true);
+            result.put("enabled", true);
+            result.put("message", "Allow Mock Location is enabled");
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
+            return true;
+          }
+          else{
+            result.put("ALLOW_MOCK_LOCATION", false);
+            result.put("enabled", false);
+            result.put("message", "Allow Mock Locaion is disabled");
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, result));
+            return true;
+          }
+        }
+        else if(action.equals("checkMockPermissionApps")){
+          try{
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, AntispoofGps.getMockPermissionApps(AntispoofGps.appContext)));
+            return true;
+          }
+          catch(Exception ex){
+            result.put("success", false);
+            result.put("message", "Failed to check Mock permission");
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, result));
+            return true;
+          }
+        }
         else{
-          result.put("code", 4);
           result.put("success", false);
           result.put("message", "Specified Method not defined in API");
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, result));
@@ -103,9 +130,45 @@ public class AntispoofGps extends CordovaPlugin {
            Log.e("Got exception ",e.getMessage());
         }
      }
-
      if (count > 0)
         return true;
      return false;
    }
+
+   public static JSONObject getMockPermissionApps(Context context) throws Exception {
+     int count = 0;
+     JSONObject result = new JSONObject();
+     JSONArray apps = new JSONArray();
+
+     PackageManager pm = context.getPackageManager();
+     List<ApplicationInfo> packages =
+        pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+     for (ApplicationInfo applicationInfo : packages) {
+       try {
+           PackageInfo packageInfo = pm.getPackageInfo(applicationInfo.packageName,
+                                                      PackageManager.GET_PERMISSIONS);
+
+           String[] requestedPermissions = packageInfo.requestedPermissions;
+
+           if (requestedPermissions != null) {
+             for (int i = 0; i < requestedPermissions.length; i++) {
+                if (requestedPermissions[i]
+                    .equals("android.permission.ACCESS_MOCK_LOCATION")
+                    && !applicationInfo.packageName.equals(context.getPackageName())) {
+                   System.out.println("found app: " +  packageInfo.toString());
+                   apps.put(new JSONObject().put("APP_NAME", packageInfo.toString()));
+                   count++;
+                }
+             }
+           }
+       } catch (NameNotFoundException e) {
+          Log.e("Got exception ",e.getMessage());
+       }
+     }
+
+    result.put("APP_COUNT", count);
+    result.put("APPS", apps);
+    return result;
+    }
 }
